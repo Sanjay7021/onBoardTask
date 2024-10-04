@@ -5,7 +5,9 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import { IDynamicTable } from "../constant/types";
+import Typography from "@mui/material/Typography";
+import { IDynamicTable, tableColumns } from "../constant/types";
+import { TextField,MenuItem } from "@mui/material";
 /*
     props would be the 
     colonms [],
@@ -13,31 +15,51 @@ import { IDynamicTable } from "../constant/types";
     isEditable boolean  
 */
 
+const currencies = [
+  {
+    value: "USD",
+    label: "$",
+  },
+  {
+    value: "EUR",
+    label: "€",
+  },
+  {
+    value: "BTC",
+    label: "฿",
+  },
+  {
+    value: "JPY",
+    label: "¥",
+  },
+];
+
 export const Table1: React.FC<IDynamicTable> = ({
   columns,
   data,
   isEditable,
   register,
   errors,
+  tableType,
 }) => {
+  // console.log(errors);
   return (
     <TableContainer>
-      <Table>
+      <Table sx={{ minWidth: 850, minHeight: 100 }}>
         <TableHead>
           <TableRow>
-            {columns.map((column: any) => (
+            {columns.map((column: tableColumns) => (
               <TableCell
                 key={column.title}
                 style={{
-                  maxWidth: column.maxWidth,
+                  // maxWidth: column!.maxWidth,
                   fontWeight: "bold",
-                  backgroundColor: "whitesmoke",
+                  backgroundColor: "gray",
                 }}
               >
                 {column.title}
               </TableCell>
             ))}
-            {/* <TableCell></TableCell> */}
           </TableRow>
         </TableHead>
         <TableBody sx={{ marginTop: "20px" }}>
@@ -45,178 +67,99 @@ export const Table1: React.FC<IDynamicTable> = ({
             ? data?.map((row: any, index: any) => (
                 <TableRow key={index}>
                   {columns.map((column: any, index: number) => {
-                    return <TableCell>{row[column.field]}</TableCell>;
+                    return (
+                      <TableCell key={index}>{row[column.field]}</TableCell>
+                    );
                   })}
                 </TableRow>
               ))
             : ""}
 
           {isEditable &&
-            data?.map((row: any, index: any) => (
-              <TableRow key={index}>
-                <TableCell>{row.value}</TableCell>
-                {/* {
-                                        columns.map((column: any, index: number) => {
-                                            if (column.field != 'value') {
-                                                return (
-                                                    <TableCell> <input
-                                                        type="date"
-                                                        id="startDate"
-                                                        placeholder="Start Date"
-                                                        {...register("startDate", {
-                                                            value: row.startDate,
-                                                            required: "StartDate is required ",
-                                                        })}
-                                                    /><br />
-                                                        {errors.startDate && <span style={{ color: 'red' }}>{errors.startDate.message}</span>}
-                                                    </TableCell>
-                                                )
-                                            }
-                                        })
-                                    } */}
-                <TableCell>
-                  {" "}
-                  <input
-                    type="date"
-                    id="startDate"
-                    placeholder="Start Date"
-                    {...register(`startDate${index}`, {
-                      value: row.startDate,
-                      required: "StartDate is required ",
-                    })}
-                  />
-                  <br />
-                  {errors.startDate && (
-                    <span style={{ color: "red" }}>
-                      {errors.startDate.message}
-                    </span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {" "}
-                  <input
-                    type="date"
-                    id="endDate"
-                    placeholder="End Date"
-                    {...register("endDate", {
-                      // value: row.endDate,
-                      required: "EndDate is required ",
-                    })}
-                  />
-                  <br />
-                  {errors.endDate && (
-                    <span style={{ color: "red" }}>
-                      {errors.endDate.message}
-                    </span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {" "}
-                  <input
-                    type="number"
-                    id="rate"
-                    placeholder="Rate/Day"
-                    {...register(`rate${index}`, {
-                      value: row.rate,
-                      required: "Rate/Day is required ",
-                    })}
-                  />
-                  <br />
-                  {errors[`rate${index}`] && (
-                    <span style={{ color: "red" }}>{errors[`rate${index}`].message}</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {" "}
-                  <input
-                    type="number"
-                    id="total"
-                    placeholder="Total"
-                    {...register("total", {
-                      // value: row.total,
-                      required: "Total is required ",
-                    })}
-                  />
-                  <br />
-                  {errors.total && (
-                    <span style={{ color: "red" }}>{errors.total.message}</span>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
+            data?.map((row: any, index: any) => {
+              // console.log(row["value"].toLowerCase() == "carrier");
+              return (
+                <TableRow key={index}>
+                  <TableCell>{row.value}</TableCell>
+                  {columns.map((col: any) => {
+                    if (col.field != "value") {
+                      // console.log("carrie", row["value"] == "Carrier");
+                      let isError = !!errors?.[tableType]?.[index]?.[col.field];
+                      console.log(isError)
+                      return row["value"] == "Carrier" ? (
+                        <>
+                        <TableCell>
 
-          {/* {!bookRecords.items.length && (
-                    <TableRow className="TableRow">
-                        <TableCell colSpan={5} className="TableCell">
-                            <Typography align="center" className="noDataText">
-                                No Books
-                            </Typography>
+                        <TextField
+                          id="standard-select-currency"
+                          select
+                          fullWidth
+                          defaultValue="EUR"
+                          // helperText=""
+                          variant="standard"
+                          {...register(`${tableType}.${index}.${col.field}`, {
+                            required: `${col.title} is required `,
+                          })}
+                        >
+                          {currencies.map((option) => (
+                            <MenuItem key={option.value} value={option.value}>
+                              {option.label}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                        <br />
+                        {errors?.[tableType]?.[index]?.[col.field] && (
+                          <span style={{ color: "red" }}>
+                            {
+                              errors?.[tableType]?.[index]?.[col.field]
+                                ?.message
+                            }
+                          </span>
+                        )}
                         </TableCell>
-                    </TableRow>
-                )} */}
+                        </>
+                      ) : (
+                        <TableCell>
+                          {" "}
+                          <TextField
+                            error={isError}
+                            fullWidth
+                            type={col.type}
+                            id={col.field}
+                            variant="standard"
+                            defaultValue={row[col.field]} // Use col.field
+                            {...register(`${tableType}.${index}.${col.field}`, {
+                              required: `${col.title} is required `,
+                            })}
+                          />
+                          <br />
+                          {errors?.[tableType]?.[index]?.[col.field] && (
+                            <span style={{ color: "red" }}>
+                              {
+                                errors?.[tableType]?.[index]?.[col.field]
+                                  ?.message
+                              }
+                            </span>
+                          )}
+                        </TableCell>
+                      );
+                    }
+                  })}
+                </TableRow>
+              );
+            })}
+
+          {!data.length && (
+            <TableRow className="TableRow">
+              <TableCell colSpan={5} className="TableCell">
+                <Typography align="center" className="noDataText">
+                  Data not found.
+                </Typography>
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </TableContainer>
   );
 };
-
-// import { useState } from "react";
-// // import "./styles.css";
-// import MaterialTable from "material-table";
-// // import DeleteIcon from "@material-ui/icons/Delete";
-// // import SearchIcon from "@material-ui/icons/Search";
-// // import SaveIcon from "@material-ui/icons/Save";
-// // import { Button } from "@material-ui/core";
-
-// export function Table() {
-//   const empList = [
-//     {
-//       id: 1,
-//       name: "Neeraj",
-//       email: "neeraj@gmail.com",
-//       phone: 9876543210,
-//       city: "Bangalore"
-//     },
-//     {
-//       id: 2,
-//       name: "Raj",
-//       email: "raj@gmail.com",
-//       phone: 9812345678,
-//       city: "Chennai"
-//     },
-//     {
-//       id: 3,
-//       name: "David",
-//       email: "david342@gmail.com",
-//       phone: 7896536289,
-//       city: "Jaipur"
-//     },
-//     {
-//       id: 4,
-//       name: "Vikas",
-//       email: "vikas75@gmail.com",
-//       phone: 9087654321,
-//       city: "Hyderabad"
-//     }
-//   ];
-
-//   const [data, setData] = useState(empList);
-
-//   const columns = [
-//     { title: "ID", field: "id" },
-//     { title: "Name", field: "name" },
-//     { title: "Email", field: "email" },
-//     { title: "Phone Number", field: "phone" },
-//     { title: "City", field: "city" }
-//   ];
-
-//   return (
-//     <div className="App">
-//       <h1>Material-Table Demo</h1>
-
-//       <div style={{ maxWidth: "100%", paddingTop: "12px" }}>
-//         <MaterialTable title="Employee Data" data={data} columns={columns} />
-//       </div>
-//     </div>
-//   );
-// }

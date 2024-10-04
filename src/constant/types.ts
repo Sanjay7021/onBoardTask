@@ -1,8 +1,9 @@
 import { UseFormRegister } from "react-hook-form"
 
 export type tableColumns = {
-    key:string  | undefined,
-    label: string | number
+    title:string  | undefined,
+    field: string,
+    type:string
   }
   
   export type Tabledata = {
@@ -13,14 +14,32 @@ export type tableColumns = {
     columns:tableColumns[],
     data:Tabledata,
     isEditable:boolean,
-    setData?:any
+    tableType:string
     errors: any
     register:UseFormRegister<any>
   }
 
-  export interface tableData {
-    startDate: Date,
-    endDate: Date,
+  export type dataT = {
+    startDate: string,
+    endDate: string,
     rate:number,
     total:number
-  } 
+  }
+  
+  export type freePeriodTableT = {
+    value : string,
+    StartDate:string,
+    EndDate:string
+  }
+
+  export type extractedDataTableT = {
+    value :string,
+    fronInvoice:string
+  }
+
+  export interface IFormType  {
+    extractedDataTable:extractedDataTableT[],
+    freePeriodTable:freePeriodTableT[],
+    data:dataT[],
+  }
+  
